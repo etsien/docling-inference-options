@@ -10,7 +10,7 @@ from docling.datamodel.base_models import (
     InputFormat,
 )
 from docling.datamodel.document import ConversionResult
-from docling.datamodel.pipeline_options import EasyOcrOptions, PdfPipelineOptions
+from docling.datamodel.pipeline_options import EasyOcrOptions, PdfPipelineOptions, TableFormerMode
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling_core.types.doc.document import DoclingDocument
 from docling_core.types.io import DocumentStream
@@ -45,12 +45,25 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     config = Config()
 
     ocr_languages = config.ocr_languages.split(",")
+
+    pipeline_options = PdfPipelineOptions(ocr_options=EasyOcrOptions(lang=ocr_languages))
+    # pipeline_options.ocr_options = EasyOcrOptions(lang=ocr_languages)
+
+    # pipeline_options.accelerator_options = accelerator_options
+    # pipeline_options.do_ocr = True
+    # pipeline_options.do_table_structure = True
+    # pipeline_options.table_structure_options.do_cell_matching = False
+    # pipeline_options.table_structure_options.mode = TableFormerMode.ACCURATE  # use more accurate TableFormer model
+
+    # pipeline_options.generate_picture_images = True
+    # pipeline_options.generate_page_images = True
+
+    # pipeline_options = PdfPipelineOptions(do_table_structure=True)
+
     converter = DocumentConverter(
         format_options={
             InputFormat.PDF: PdfFormatOption(
-                pipeline_options=PdfPipelineOptions(
-                    ocr_options=EasyOcrOptions(lang=ocr_languages)
-                )
+                pipeline_options=pipeline_options
             )
         }
     )
